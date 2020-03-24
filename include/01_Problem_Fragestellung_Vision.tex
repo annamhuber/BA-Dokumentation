@@ -1,5 +1,11 @@
 \chapter{Problem, Fragestellung, Vision}
 \label{ch:ProblemFragestellungVision}
 % TODO Allgemeine Einleitung in die Arbeit
+Unzählige Recommender Systeme begleiten uns im Alltag und helfen uns unbewusst Entscheidungen zu treffen. Streamingdienste empfehlen uns neue Filme oder Musik und im Onlineshopping werden uns zu kaufende Artikel empfohlen. Damit Recommender Systeme Produkte empfehlen können, berechnet man die Ähnlichkeit zwischen den Benutzer \footnote{Im weiteren Verlauf der Arbeit, werden die Benutzer als User referenziert.}, sowie auch die Ähnlichkeit zwischen den Produkten \footnote{Im weiteren Verlauf der Arbeit, werden die unterschiedlichen Produkte als Items referenziert.}.\\
 
-\section{Aufgabenstellung und Zielsetzung}
+\noindent Ziel dieser Arbeit ist es, die User zu User und Item zu Item Ähnlichkeiten zu berechnen und jeweils die ähnlichsten $N$ User beziehungsweise die ähnlichsten $N$ Items zu finden.
+Die ähnlichsten Nachbarn sollen nicht nur im Feature Space, sondern auch im Principal Componant Analysis \footnote{Im weiteren Verlauf dieser Arbeit wird für Prinicpal Componant Analysis die Abkürzung PCA verwendet.} Space berechnet werden. Danach sollen die ähnlichsten $N$ User und die ähnlichsten $N$ Items des Feature Spaces, mit den ähnlichsten $N$ User und den ähnlichsten $N$ Items des PCA Spaces miteinander verglichen werden. vgl. Anhang Kapitel \ref{app:sec:Aufgabenstellung} \nameref{app:sec:Aufgabenstellung}\\
+
+\noindent Die Filmdatenbank, mit welcher in diesem Projekt gearbeitet wird, ist frei zugänglich und wird von GroupLens zur Verfügung gestellt. Es wird mit dem für die Forschung empfohlene MovieLens 25M Dataset gearbeitet (\cite{10.1145/2827872}).
+
+
