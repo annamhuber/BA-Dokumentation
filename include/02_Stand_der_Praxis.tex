@@ -2,14 +2,96 @@
 \label{ch:StandDerPraxis}
 
 % TODO Historie des betroffenen Feld
-In diesem Kapitel werden die gängigen Techniken und Ansätze zur Berechnung von Benutzer Nachbarn und Element Nachbarn vorgestellt.
 
-\section{Technologische Grundlagen}
+In diesem Kapitel werden die gängigen Techniken und Ansätze zur Berechnung von User und Item Nachbarn vorgestellt.
+
+\section{Technologische Grundlagen, Vokabular und Notation}
 % TODO Wichtige technologischen Grundlagen / Wissenswertes
+In dieser Arbeit wird eine konsistente mathematische Notation verwendet. In Anlehnung an \cite{Ekstrand2011} werden deshalb folgende wichtige Elemente zur Berechnung von User zu User Ähnlichkeit und Item zu Item Ähnlichkeit eingeführt. Die wichtigsten Elemente sind die Menge der User $U$ und die Menge der Items $I$. $I_u$ bezeichnet die Menge der Items, welche vom User $u$ bewertet wurden. $U_i$ ist die Menge der User, welche Item $i$ bewertet haben.
 
-\section{Technische Konzepte}
-\label{sec:technischeKonzepte}
-% TODO Konzepte in diesem Feld welche für den Leser relevant sind
+Die Ratingmatrix $R$ besteht aus Werten $r_{u,i}$, welche die Bewertungen, welche User $u$ dem Item $i$ gegeben hat, sind. Ein Beispiel wie die Ratingmatrix $R$ aufgebaut ist, zeigt die Tabelle \ref{Ratingmatrix}.
+$r_u$ bezeichnet den Vektor aller Ratings von User $u$ (Zeilen von $R$) und Vektor $r_i$ ist der Vektor aller Ratings von Item $i$ (Spalten von $R$).
 
-\section{Stand im Bezug auf eigenes Projekt}
-% TODO Welche Forschung wurde in jüngster Zeit gemacht welche relevant für das eigene Projekt sind
+\begin{table}[htb]
+    \caption{Ratingmatrix $R$}
+    \label{Ratingmatrix}
+    \begin{tabularx}{\textwidth}{|X|X|X|X|X|}
+    	\hline 
+    	\textbf{} & \textbf{Item 1} & \textbf{Item 2} & \textbf{...}& \textbf{Item n} \\
+    	\hline 
+    	\textbf{User 1}& $r_{1,1}$ & $r_{1,2}$ & ... & $r_{1,n}$\\ 
+    	\hline 
+    	\textbf{User 2} &  $r_{2,1}$ & $r_{2,2}$ & ... & $r_{2,n}$\\ 
+    	\hline
+    	\textbf{...}& ... & ... & ... & ...\\
+    	\hline
+    	\textbf{User m} &  $r_{m,1}$ & $r_{m,2}$ & ... & $r_{m,n}$\\
+    	\hline
+    \end{tabularx}
+\end{table}
+
+
+\subsection{Feature Space}
+Der Feature Space wird durch die Anzahl Features definiert.
+Bei der User zu User Ähnlichkeit betrachtet man die Matrix $R$, sodass jedes Item ein Feature ist. Bei der Item zu Item Ähnlichkeit benützt man zur Berechnung die transponierte Matrix $R^T$, wobei dann die User jeweils die Feature repräsentieren.
+
+%Given some data, a feature space is just the set of all possible values for a chosen set of features from that data. It is always possible to represent feature values and thus a feature space using only numbers, and further to do so in such a way that the feature space can be interpreted as a real space.
+
+\subsection{Principal Component Analysis}
+Wenn die Daten eine grosse Anzahl Dimensionen enthalten, kann mittels Principal Component Analysis eine Reduktion der Dimensionen durchgeführt werden.
+
+Die Principal Component Analysis ist definiert als die orthogonale lineare Transformation von Daten, die diese in ein neues Koordinatensystem transformiert. Der Hauptvorteil der Principal Component Analysis besteht darin, dass die Daten so transformiert werden, dass die grösste Varianz durch eine skalare Projektion der Daten auf der ersten Koordinate, dem ersten Principal Component, liegt, die zweitgrösste Varianz auf der zweiten Koordinate, usw. (\cite{jolliffe_principal_2002}, S.28). Dies erlaubt es, die Anzahl der gewünschten Dimensionen zu definieren, ohne zu viele Informationen zu verlieren.
+
+
+Im ersten Schritt werden die vorhandenen Daten in eine $m\times n$ Matrix transformiert. Damit die Principal Component Analysis korrekt funktioniert, subtrahiert man im zweiten Schritt in jeder Dimension den Mittelwert $\bar{X}$ der Dimension. Dadurch erhaltet man ein Datenset mit dem Mittelwert $= 0$.
+Im dritten Schritt berechnet man die $n\times n$ Kovarianzmatrix $C$. Mit der Kovarianzmatrix berechnet man die Kovarianz zwischen allen Dimensionen. Dies wird mit dem Beispiel \eqref{Beispiel Kovarianzmatrix} mit den drei Dimensionen $X,Y,Z$ aufgezeigt.
+
+\indexequation{C=\left(\begin{array}{ccc}
+\operatorname{cov}(x, x) & \operatorname{cov}(x, y) & \operatorname{cov}(x, z) \\
+\operatorname{cov}(y, x) & \operatorname{cov}(y, y) & \operatorname{cov}(y, z) \\
+\operatorname{cov}(z, x) & \operatorname{cov}(z, y) & \operatorname{cov}(z, z)
+\end{array}\right)}{Beispiel einer Kovarianzmatrix mit 3 Dimensionen }{Beispiel Kovarianzmatrix} 
+
+Wobei man ${cov}(X,Y)$ mit $n$ Dimensionen wie folgt berechnet:
+\indexequation{\operatorname{cov}(X, Y)=\frac{\sum_{i=1}^{n}\left(X_{i}-\bar{X}\right)\left(Y_{i}-\bar{Y}\right)}{(n-1)}}{Kovarianz}{Kovarianz}
+Da wir im zweiten Schritt bereits den Mittelwert der Dimension substrahiert haben, kann in diesem Fall die Subtraktion von $\bar{X}$ und $\bar{Y}$ weggelassen werden.
+
+Im vierten Schritt werden die Eigenwerte sowie die Eigenvektoren der Kovarianzmatrix $C$ berechnet.
+Der Eigenvektor mit dem grössten Eigenwert ist der Principle Component des Datensets. Weiter sortiert man deshalb die Eigenvektoren nach ihren Eigenwerten.
+Für die weiteren Schritte, kann man entweder mit allen Eigenvektoren fortfahren, oder man wählt die ersten $n$ Eigenvektoren aus. Dabei kann man auf eine bestimmte Anzahl Dimensionen reduzieren, oder man wählt die Anzahl Eigenvektoren aus, welche $x\%$ der Varianz der Daten enthält.
+
+Um nun die Daten im PCA-Space zu erhalten, multiplizieren wir im letzten Schritt die transponierten, normierten Daten aus Schritt 2 mit der transponierten Eigenvektormatrix. 
+%TODO MUSS FINAL DATA AUCH WIEDER TRANSPONIERT WERDEN? DENKE JA
+
+
+
+\subsection{Ähnlichkeitsfunktionen}
+Um die User zu User und Item zu Item Ähnlichkeit zu berechnen, kommen unterschiedliche Ähnlichkeitsfunktionen in Frage. In diesem Subkapitel werden drei Ähnlichkeitsfunktionen vorgestellt.
+
+\subsubsection{Pearson Korrelation}
+Die Pearson Korellation ermittelt die statistische Korrelation zweier Variabeln und wird auch von Grouplens (\cite{Resnick94grouplens:an}) zur Ermittlung der User zu User Ähnlichkeit verwendet. Der Pearson-Korrelationskoeffizient kann Werte zwischen $-1$ und $1$ annehmen und wird wie folgt berechnet:
+
+\indexequation{s(u, v)=\frac{\sum_{i \in I_{u} \cap I_{v}}\left(r_{u, i}-\bar{r}_{u}\right)\left(r_{v, i}-\bar{r}_{v}\right)}{\sqrt{\sum_{i \in I_{u} \cap_{v}}\left(r_{u, i}-\bar{r}_{u}\right)^{2}} \sqrt{\sum_{i \in I_{u} \cap_{v}}\left(r_{v, i}-\bar{r}_{v}\right)^{2}}}}{Pearson Korrelation}{Pearson Korrelation}
+
+Nachteil der Pearson Korrelation ist, dass User mit wenigen Ratings eine hohe Ähnlichkeit aufweisen (\cite{Ekstrand2011}).
+
+\subsubsection{Cosinus Similarität}
+
+Die Cosinus Similarität ist, anderst als die Pearson Korrelation, kein statistischer Ansatz sondern vielmehr ein auf der linearen Algebra basierender Ansatz um die Ähnlichkeit zwischen zwei User oder zwei Items zu berechnen. Dazu werden jeweils die Ratingvektoren $r_u$ für die User und die Ratingvektoren $r_i$ für die Items verwendet.
+Mit $r_u$ beziehungsweise $r_i$ wird die Cosinus Distanz berechnet. Dazu wird das Skalarprodukt zwischen $r_u$ und $r_v$ für die Items $r_i$ und $r_j$ berechnet und durch ihre $L_2$ Norm geteilt.
+Folgend die Formeln für die Cosinus Similarität jeweils mit $r_u$,$r_v$ für die User und mit $r_i$,$r_j$ für die Item (\cite{Ekstrand2011}).
+
+\indexequation{s(u, v)=\frac{\mathbf{r}_{u} \cdot \mathbf{r}_{v}}{\left\|\mathbf{r}_{u}\right\|_{2}\left\|\mathbf{r}_{v}\right\|_{2}}=\frac{\sum_{i} r_{u, i} r_{v, i}}{\sqrt{\sum_{i} r_{u, i}^{2}} \sqrt{\sum_{i} r_{v, i}^{2}}}}{Cosinus Similarität User $u,v$}{Cosinus Similarität User $u,v$}
+
+\indexequation{s(i, j)=\frac{\mathbf{r}_{i} \cdot \mathbf{r}_{j}}{\left\|\mathbf{r}_{i}\right\|_{2}\left\|\mathbf{r}_{j}\right\|_{2}}}{Cosinus Similarität Item $i,j$}{Cosinus Similarität Item $i,j$}
+
+
+\subsubsection{Mahalanobis Distanz}
+
+
+
+
+
+
+
+
