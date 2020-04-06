@@ -44,13 +44,13 @@ Die Principal Component Analysis ist definiert als die orthogonale lineare Trans
 
 
 Im ersten Schritt werden die vorhandenen Daten in eine $m\times n$ Matrix transformiert. Damit die Principal Component Analysis korrekt funktioniert, subtrahiert man im zweiten Schritt in jeder Dimension den Mittelwert $\bar{X}$ der Dimension. Dadurch erhaltet man ein Datenset mit dem Mittelwert $= 0$.
-Im dritten Schritt berechnet man die $n\times n$ Kovarianzmatrix $C$. Mit der Kovarianzmatrix berechnet man die Kovarianz zwischen allen Dimensionen. Dies wird mit dem Beispiel \eqref{Beispiel Kovarianzmatrix} mit den drei Dimensionen $X,Y,Z$ aufgezeigt.
+Im dritten Schritt berechnet man die $n\times n$ Kovarianzmatrix $C$. Mit der Kovarianzmatrix berechnet man die Kovarianz zwischen allen Dimensionen. Dies wird mit dem Beispiel \eqref{Kovarianzmatrix} mit den drei Dimensionen $X,Y,Z$ aufgezeigt.
 
 \indexequation{C=\left(\begin{array}{ccc}
 \operatorname{cov}(x, x) & \operatorname{cov}(x, y) & \operatorname{cov}(x, z) \\
 \operatorname{cov}(y, x) & \operatorname{cov}(y, y) & \operatorname{cov}(y, z) \\
 \operatorname{cov}(z, x) & \operatorname{cov}(z, y) & \operatorname{cov}(z, z)
-\end{array}\right)}{Beispiel einer Kovarianzmatrix mit 3 Dimensionen }{Beispiel Kovarianzmatrix} 
+\end{array}\right)}{Beispiel einer Kovarianzmatrix mit 3 Dimensionen }{Kovarianzmatrix} 
 
 Wobei man ${cov}(X,Y)$ mit $n$ Dimensionen wie folgt berechnet:
 \indexequation{\operatorname{cov}(X, Y)=\frac{\sum_{i=1}^{n}\left(X_{i}-\bar{X}\right)\left(Y_{i}-\bar{Y}\right)}{(n-1)}}{Kovarianz}{Kovarianz}
@@ -73,7 +73,7 @@ Die Pearson Korellation ermittelt die statistische Korrelation zweier Variabeln 
 
 \indexequation{s(u, v)=\frac{\sum_{i \in I_{u} \cap I_{v}}\left(r_{u, i}-\bar{r}_{u}\right)\left(r_{v, i}-\bar{r}_{v}\right)}{\sqrt{\sum_{i \in I_{u} \cap_{v}}\left(r_{u, i}-\bar{r}_{u}\right)^{2}} \sqrt{\sum_{i \in I_{u} \cap_{v}}\left(r_{v, i}-\bar{r}_{v}\right)^{2}}}}{Pearson Korrelation}{Pearson Korrelation}
 
-Nachteil der Pearson Korrelation ist, dass User mit wenigen Ratings eine hohe Ähnlichkeit aufweisen (\cite{Ekstrand2011}).
+
 
 \subsubsection{Cosinus Similarität}
 
@@ -87,11 +87,18 @@ Folgend die Formeln für die Cosinus Similarität jeweils mit $r_u$,$r_v$ für d
 
 
 \subsubsection{Mahalanobis Distanz}
+Die Mahalanobis Distanz wurde 1936 von P.C. Mahalanobis eingeführt (\cite{mahalanobis1936generalized}).
+Die Mahalonobis Distanz wird definiert als (\cite{DEMAESSCHALCK20001}):
+\indexequation{$$\mathrm{MD}_{u}=\sqrt{\left(r_{u}-\bar{r}\right) \mathrm{C}^{-1}\left(r_{u}-\bar{r}\right)^{T}}$$}{Mahalanobis Distanz}{Mahalanobis Distanz}
 
+Wobei $C^{-1}$ das Inverse der Covarianzmatrix C aus Formel  \ref{Kovarianzmatrix} ist.
 
+Soll nun die Mahalanobis Distanz zwischen zwei Vektoren berechnet werden, so kann der Mittelwert $\bar{r}$ in Formel \ref{Mahalanobis Distanz} durch einen Zweiten Vektor ausgetauscht werden. So kann Formel \ref{Mahalanobis Distanz} geschrieben werden als Mahalanobis Distanz zwischen zwei User:
 
+\indexequation{$$\mathrm{MD}_{u,m}=\sqrt{\left(r_{u}-r_{m}\right) \mathrm{C}^{-1}\left(r_{u}-r_{m}\right)^{T}}$$}{Mahalanobis Distanz zwischen zwei User}{Mahalanobis Distanz mit zwei User}
 
+Beziehungsweise als Mahalanobis Distanz zwischen zwei Items:
 
-
+\indexequation{$$\mathrm{MD}_{i,n}=\sqrt{\left(r_{i}-r_{n}\right) \mathrm{C}^{-1}\left(r_{i}-r_{n}\right)^{T}}$$}{Mahalanobis Distanz zwischen zwei Items}{Mahalanobis Distanz mit zwei Items}
 
 
