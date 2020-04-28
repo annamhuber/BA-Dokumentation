@@ -2,12 +2,15 @@
 % Wir haben dies jeweils über \chapter gelöst
 % \includepdf[pages=-]{PDF-ANHANG}
 
-\chapter{Aufgabenstellung}
-\label{app:sec:Aufgabenstellung}
-\includepdf[pages=-]{2020-02 Aufgabenstellung Movie Recommender}
+\chapter{Anhang}
+\label{app:sec:Anhang}
 
-\chapter{Sprintreviews}
-\section*{Initiale Risikoanalyse}
+\includepdf[pages=1, pagecommand={\thispagestyle{plain}\section{Aufgabenstellung}\label{sec:Aufgabenstellung}}]{2020-02 Aufgabenstellung Movie Recommender}
+\includepdf[pages=2-3, pagecommand={\thispagestyle{plain}}]{2020-02 Aufgabenstellung Movie Recommender}
+%\includepdf[pages=-]{2020-02 Aufgabenstellung Movie Recommender}
+
+\section{Sprintreviews}
+\subsection*{Initiale Risikoanalyse}
 Zu Beginn des Projektes wurden folgende Risiken erfasst:
 
 \begin{figure}[htb]
@@ -17,7 +20,7 @@ Zu Beginn des Projektes wurden folgende Risiken erfasst:
 	\label{fig:InitialeRisikoanalyse}
 \end{figure}
 
-\section*{Sprint 1 Review und Sprint 2 Planning}
+\subsection*{Sprint 1 Review und Sprint 2 Planning}
 Nach dem ersten Sprint wurden die Risiken wie folgt angepasst:
 \begin{figure}[htb]
 	\centering
@@ -33,7 +36,7 @@ Des weiteren wurde Sprint 2 geplant.
 	\label{fig:Sprint 1 Review}
 \end{figure}
 
-\section*{Sprint 2 Review und Sprint 3 Planning}
+\subsection*{Sprint 2 Review und Sprint 3 Planning}
 Nach dem zweiten Sprint wurden die Risiken wie folgt angepasst:
 \begin{figure}[htb]
 	\centering
@@ -47,4 +50,17 @@ Des weiteren wurde Sprint 3 geplant.
 	\includegraphics[keepaspectratio,width=\linewidth]{img/Projektboard Sprint Review 2.png}
 	\caption{Projektboard Sprint 2 Review und Sprint 3 Planning}
 	\label{fig:Sprint 2 Review}
+\end{figure}
+
+\subsection*{Sprint 3 Review und Sprint 4 Planning}
+Nach dem dritten Sprint wurden die Risiken wie folgt angepasst:
+
+%TODO Risiken nach Sprint 3 angepasst
+
+Des weiteren wurde Sprint 4 geplant. 
+\begin{figure}[htb]
+	\centering
+	\includegraphics[keepaspectratio,width=\linewidth]{img/Projectboard Sprintreview 3.png}
+	\caption{Projektboard Sprint 3 Review und Sprint 4 Planning}
+	\label{fig:Sprint 3 Review}
 \end{figure}

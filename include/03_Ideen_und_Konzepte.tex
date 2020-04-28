@@ -1,10 +1,15 @@
 \chapter{Ideen und Konzepte}
+\label{sec: Ideen, Konzepte}
 \section{Grundkonzept}
 % TODO Beschreibung wie das Problem im Ansatz gelöst werden soll
+
+
+Alle Berechnungen werden auf dem öffentlich verfügbaren 25M Dataset \footnote{https://grouplens.org/datasets/movielens/25m/} berechnet. Dieses enthält 25'000'095 Ratings von 162'541 User für 62'423 Filme. Jeder User hat mindestens 20 Bewertungen abgegeben. 
+
  Als Erstes wird die Usersimilarität und die Itemsimilarität im Featurespace, wie im Kapitel \ref{ch:StandDerPraxis} \nameref{ch:StandDerPraxis} beschrieben, berechnet. Dazu wird das Ähnlichkeitsmass Cosinus Similarität verwendet. Die Entscheidung die Cosinus Similarität und nicht die Pearson Korrelation zu verwenden wurde auf Grund der folgenden Nachteile der Pearson Korrelation getroffen:
 \begin{itemize}
-    \item Ein Nachteil der Pearson Korrelation ist, dass User mit wenigen Ratings eine hohe Ähnlichkeit aufweisen. (\cite{Ekstrand2011}).
-    \item Die Person Korrelation wurde zur Berechnung der Item-Item Similarität vorgeschlagen, jedoch funktioniert die Pearson Korrelation schlechter als die Cosinus Similarität (\cite{10.1145/371920.372071}).
+    \item Ein Nachteil der Pearson Korrelation ist, dass User mit wenigen Ratings eine hohe Ähnlichkeit aufweisen.(\cite{Ekstrand2011}).
+    \item Die Pearson Korrelation wurde zur Berechnung der Item-Item Similarität vorgeschlagen, jedoch funktioniert die Pearson Korrelation schlechter als die Cosinus Similarität (\cite{10.1145/371920.372071}).
     
     
 \end{itemize}

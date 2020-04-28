@@ -7,7 +7,7 @@ In diesem Kapitel werden die gängigen Techniken und Ansätze zur Berechnung von
 
 \section{Technologische Grundlagen, Vokabular und Notation}
 % TODO Wichtige technologischen Grundlagen / Wissenswertes
-In dieser Arbeit wird eine konsistente mathematische Notation verwendet. In Anlehnung an \cite{Ekstrand2011} werden deshalb folgende wichtige Elemente zur Berechnung von User zu User Ähnlichkeit und Item zu Item Ähnlichkeit eingeführt. Die wichtigsten Elemente sind die Menge der User $U$ und die Menge der Items $I$. $I_u$ bezeichnet die Menge der Items, welche vom User $u$ bewertet wurden. $U_i$ ist die Menge der User, welche Item $i$ bewertet haben.
+In dieser Arbeit wird eine konsistente mathematische Notation verwendet. In Anlehnung an die Notation von \cite{Ekstrand2011} werden deshalb folgende wichtige Elemente zur Berechnung von User zu User Ähnlichkeit und Item zu Item Ähnlichkeit eingeführt. Die wichtigsten Elemente sind die Menge der User $U$ und die Menge der Items $I$. $I_u$ bezeichnet die Menge der Items, welche vom User $u$ bewertet wurden. $U_i$ ist die Menge der User, welche Item $i$ bewertet haben.
 
 Die Ratingmatrix $R$ besteht aus Werten $r_{u,i}$, welche die Bewertungen, welche User $u$ dem Item $i$ gegeben hat, sind. Ein Beispiel wie die Ratingmatrix $R$ aufgebaut ist, zeigt die Tabelle \ref{Ratingmatrix}.
 $r_u$ bezeichnet den Vektor aller Ratings von User $u$ (Zeilen von $R$) und Vektor $r_i$ ist der Vektor aller Ratings von Item $i$ (Spalten von $R$).
@@ -42,9 +42,20 @@ Wenn die Daten eine grosse Anzahl Dimensionen enthalten, kann mittels Principal 
 
 Die Principal Component Analysis ist definiert als die orthogonale lineare Transformation von Daten, die diese in ein neues Koordinatensystem transformiert. Der Hauptvorteil der Principal Component Analysis besteht darin, dass die Daten so transformiert werden, dass die grösste Varianz durch eine skalare Projektion der Daten auf der ersten Koordinate, dem ersten Principal Component, liegt, die zweitgrösste Varianz auf der zweiten Koordinate, usw. (\cite{jolliffe_principal_2002}, S.28). Dies erlaubt es, die Anzahl der gewünschten Dimensionen zu definieren, ohne zu viele Informationen zu verlieren.
 
+Dies wird mittels Abbildung \ref{fig:PCA} aufgezeigt.
 
-Im ersten Schritt werden die vorhandenen Daten in eine $m\times n$ Matrix transformiert. Damit die Principal Component Analysis korrekt funktioniert, subtrahiert man im zweiten Schritt in jeder Dimension den Mittelwert $\bar{X}$ der Dimension. Dadurch erhaltet man ein Datenset mit dem Mittelwert $= 0$.
-Im dritten Schritt berechnet man die $n\times n$ Kovarianzmatrix $C$. Mit der Kovarianzmatrix berechnet man die Kovarianz zwischen allen Dimensionen. Dies wird mit dem Beispiel \eqref{Kovarianzmatrix} mit den drei Dimensionen $X,Y,Z$ aufgezeigt.
+\begin{figure}[ht]
+	\centering
+	\includegraphics[keepaspectratio,width=0.66\linewidth]{img/PCA.png}
+	\caption{Principal Component Analyse, (Quelle: \nameref{sec:Aufgabenstellung}})
+	\label{fig:PCA}
+\end{figure}
+
+\subsubsection{Berechnung der Principal Component Analyse}
+\label{sec: Berechnung PCA}
+
+Um die PCA zu berechnen werden als im \textbf{ersten} Schritt die vorhandenen Daten in eine $m\times n$ Matrix transformiert (in unserem Fall in die Ratingmatrix $R$). Damit die Principal Component Analysis korrekt funktioniert, subtrahiert man in einem \textbf{zweiten} Schritt in jeder Dimension(Spalten der $m \times n$ Matrix) den Mittelwert $\bar{X}$ der Dimension.  Dadurch erhält man ein Datenset mit dem Mittelwert $= 0$.
+Im \textbf{dritten} Schritt berechnet man die $n\times n$ Kovarianzmatrix $C$. Mit der Kovarianzmatrix berechnet man die Kovarianz zwischen allen Dimensionen. Dies wird mit dem Beispiel \eqref{Kovarianzmatrix} mit den drei Dimensionen $X,Y,Z$ aufgezeigt.
 
 \indexequation{C=\left(\begin{array}{ccc}
 \operatorname{cov}(x, x) & \operatorname{cov}(x, y) & \operatorname{cov}(x, z) \\
@@ -56,11 +67,11 @@ Wobei man ${cov}(X,Y)$ mit $n$ Dimensionen wie folgt berechnet:
 \indexequation{\operatorname{cov}(X, Y)=\frac{\sum_{i=1}^{n}\left(X_{i}-\bar{X}\right)\left(Y_{i}-\bar{Y}\right)}{(n-1)}}{Kovarianz}{Kovarianz}
 Da wir im zweiten Schritt bereits den Mittelwert der Dimension substrahiert haben, kann in diesem Fall die Subtraktion von $\bar{X}$ und $\bar{Y}$ weggelassen werden.
 
-Im vierten Schritt werden die Eigenwerte sowie die Eigenvektoren der Kovarianzmatrix $C$ berechnet.
-Der Eigenvektor mit dem grössten Eigenwert ist der Principle Component des Datensets. Weiter sortiert man deshalb die Eigenvektoren nach ihren Eigenwerten.
+Im \textbf{vierten} Schritt werden die Eigenwerte sowie die Eigenvektoren der Kovarianzmatrix $C$ berechnet.
+Der Eigenvektor mit dem grössten zugehörigen Eigenwert ist der Principle Component des Datensets. Weiter sortiert man deshalb die Eigenvektoren nach ihren Eigenwerten.
 Für die weiteren Schritte, kann man entweder mit allen Eigenvektoren fortfahren, oder man wählt die ersten $n$ Eigenvektoren aus. Dabei kann man auf eine bestimmte Anzahl Dimensionen reduzieren, oder man wählt die Anzahl Eigenvektoren aus, welche $x\%$ der Varianz der Daten enthält.
-
-Um nun die Daten im PCA-Space zu erhalten, multiplizieren wir im letzten Schritt die transponierten, normierten Daten aus Schritt 2 mit der transponierten Eigenvektormatrix. 
+\subsubsection{PCA Space}
+Um nun die Daten im PCA-Space zu erhalten, multiplizieren wir als \textbf{fünfter} und letzter Schritt die transponierten, normierten Daten aus Schritt 2 ($R^T$) mit der transponierten Eigenvektormatrix $E^T$. 
 %TODO MUSS FINAL DATA AUCH WIEDER TRANSPONIERT WERDEN? DENKE JA
 
 
@@ -102,3 +113,15 @@ Beziehungsweise als Mahalanobis Distanz zwischen zwei Items:
 \indexequation{$$\mathrm{MD}_{i,n}=\sqrt{\left(r_{i}-r_{n}\right) \mathrm{C}^{-1}\left(r_{i}-r_{n}\right)^{T}}$$}{Mahalanobis Distanz zwischen zwei Items}{Mahalanobis Distanz mit zwei Items}
 
 
+\subsection{Vergleich zweier Listen}
+Um die Ähnlichkeit der Top $N$ User- beziehungsweise Item-Nachbaren des Feature Space mit den Top $N$ Nachbaren des PCA Spaces zu vergleichen gibt es viele Ansätze. In den folgenden Subkapiteln werden die gängigsten Koeffizienten beschrieben. 
+\subsubsection{Jaccard Index}
+Der Jaccard Index (\cite{Jaccard}) ist ein in vielen Gebieten, beispielsweise Machine Learning, angewandter Index, um die Ähnlichkeit zweier finiten Mengen zu vergleichen. (\cite{kotz_balakrishnan_vidakovic_campbell}). Der Jaccard Index wird definiert als: \indexequation{$$J(A, B)=\frac{|A \cap B|}{|A \cup B|}=\frac{|A \cap B|}{|A|+|B|-|A \cap B|}$$}{Jaccard Index}{Jaccard Index}
+
+
+\subsubsection{Tanimoto Koeffizient}
+Der Tanimoto Koeffizient ist eine Erweiterung des Jaccard Index. Da der Jaccard Index nur überprüft, ob ein Item oder User $\in$ der Mengen $A,B$ ist.
+Der Tanimoto Koeffizient erweitert den Jaccard Index so, dass nicht nur überprüft wird, ob die Items und User in den Mengen $A,B$ vorhanden sind, sondern die Mengen $A$ und $B$ werden elementweise miteinander verglichen.
+
+Der Tanimoto Koeffizient wird wie folgt definiert (\cite{Rogers1960}):
+\indexequation{$$T_{s}(A, B)=\frac{\sum_{i}\left(A_{i} \wedge B_{i}\right)}{\sum_{i}\left(A_{i} \vee B_{i}\right)}$$}{Tanimoto Koeffizient}{Tanimoto Koeffizient}
