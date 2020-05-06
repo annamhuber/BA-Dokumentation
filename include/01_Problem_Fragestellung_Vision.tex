@@ -3,9 +3,46 @@
 % TODO Allgemeine Einleitung in die Arbeit
 Unzählige Recommender Systeme begleiten uns im Alltag und helfen uns unbewusst Entscheidungen zu treffen. Streamingdienste empfehlen uns neue Filme oder Musik und im Onlineshopping werden uns zu kaufende Artikel empfohlen. Damit Recommender Systeme Produkte empfehlen können, berechnet man die Ähnlichkeit zwischen den Benutzer\footnote{Im weiteren Verlauf der Arbeit, werden die Benutzer als User referenziert.}, sowie auch die Ähnlichkeit zwischen den Produkten\footnote{Im weiteren Verlauf der Arbeit, werden die unterschiedlichen Produkte als Items referenziert.}.\\
 
+\section{Ziele}
 \noindent Ziel dieser Arbeit ist es, die User zu User und Item zu Item Ähnlichkeiten zu berechnen und jeweils die ähnlichsten $N$ User beziehungsweise die ähnlichsten $N$ Items zu finden.
 Die ähnlichsten Nachbarn sollen nicht nur im Feature Space, sondern auch im Principal Componant Analysis Space (PCA Space) berechnet werden. Danach sollen die ähnlichsten $N$ User und die ähnlichsten $N$ Items des Feature Spaces, mit den ähnlichsten $N$ User und den ähnlichsten $N$ Items des PCA Spaces miteinander verglichen werden. vgl. \nameref{app:sec:Anhang} Kapitel \ref{sec:Aufgabenstellung} \nameref{sec:Aufgabenstellung}\\
 
 \noindent Die Filmdatenbank, mit welcher in diesem Projekt gearbeitet wird, ist frei zugänglich und wird von GroupLens zur Verfügung gestellt. Es wird mit dem für die Forschung empfohlene MovieLens 25M Dataset gearbeitet (\cite{10.1145/2827872}) und kann hier\footnote{https://grouplens.org/datasets/movielens/25m/} heruntergeladen werden.
+
+\section{Randbedingungen}
+\subsection{Projektrandbedingungen}
+
+Agiles, iteratives und inkrementelles Vorgehen soll eingesetzt werden. Betreuer und Auftraggeber sollen regelmässig über den aktuellen Stand informiert werden. Das weitere Vorgehen soll gemeinsam besprochen werden.
+\subsection{Produktrandbedingungen}
+\begin{enumerate}
+    \item Eine State of the Art Analyse zu den relevanten Techniken:
+    \begin{enumerate}
+        \item Feature Space
+        \item Cosinus Similarity
+        \item Principal Component Analyse (PCA)
+        \item Mahalanobis Distanz
+    \end{enumerate}
+    soll durchgeführt werden.
+    \item Es soll das öffentlich verfügbare Movies 25M Dataset verwendet werden.
+    \item Im Feature Space soll die Cosinus Similarität oder die Pearson Korrelation zur Berechnung der User- und Item-Similarität verwendet werden.
+    \item PCA soll auf dem Dataset berechnet werden
+    \item Im PCA Space soll die Mahalanobis Distanz zur Berechnung der User- und Item-Similarität verwendet werden.
+    \item Im PCA soll die User- Und Item-Similarität mit
+    \begin{enumerate}
+        \item allen Eigenvektoren,
+        \item mit den Eigenvektoren, welche 90\% der Datenvarianz erklären
+    \end{enumerate} berechnet werden.
+    \item Es soll eine Software Architektur zur Berechnung der User und Item Ähnlichkeiten im Feature- und PCA-Space  designed werden.
+    \item Die zuvor designte Software Architektur soll implementiert werden.
+    \item Es sollen geeignete Metriken zum Vergleich der Top $N$ Nachbarn gefunden werden. 
+    \item Die Top $N$ Nachbarn des Feature- und PCA-Spaces sollen miteinander verglichen werden.
+    \item Es soll Java oder Python verwendet werden.
+    \item Es sollen parallel arbeitende Libraries (z.B. Tensorflow) verwendet werden.
+    \item Die Resultate sollen in eine MySQL Datenbank geschrieben werden.
+    
+\end{enumerate}
+
+\subsection{Out of Scope}
+Es soll keine eigene Implementation der PCA geschrieben werden. Es kann die PCA Implementation einer Library verwendet werden.
 
 

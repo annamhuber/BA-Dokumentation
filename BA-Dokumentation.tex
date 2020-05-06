@@ -3,8 +3,9 @@
 ]{scrreprt}
 
 %%% PACKAGES %%%
+% Remove space between chapter and top
+%\renewcommand*\chapterheadstartvskip{\vspace*{-0.3cm}}
 
-\renewcommand*\chapterheadstartvskip{\vspace*{-0.3cm}}
 % PDF/A Compliance
 \usepackage[a-2b,latxmp]{pdfx}
 
@@ -234,6 +235,7 @@
 \appendix
 % Verhindert das Einfügen von Kapiteltitel kleiner als \chapter
 %\addtocontents{toc}{\protect\setcounter{tocdepth}{0}}
+\include{include/08_Anhang}
 
 \printglossary
 
@@ -247,6 +249,5 @@
 
 \printbibliography
 
-\include{include/08_Anhang}
 
 \end{document}
