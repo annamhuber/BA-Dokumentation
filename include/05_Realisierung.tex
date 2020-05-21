@@ -1,12 +1,343 @@
 \chapter{Realisierung}
 % TODO Beschreibung der Umsetzung der definierten Ziele, einschliesslich der aufgetretenen Schwierigkeiten und Einschränkungen
-Die Filmdatenbank, mit welcher in diesem Projekt gearbeitet wird, enthält die Daten in Form von $(User, Item, Rating)$ Tripplets. Die Ratings gehen von 0.5 - 5 in 0.5 Schritten.
 
-\section{Aufsetzen des Ubuntuservers}
-\begin{itemize}
-    \item Install Virtualenv with Virtualenvwrapper on Ubuntu
-    \item Setting up a Virtual Environment
-    \item Install MySQl Server
-    \item Install Mysql Package
-\end{itemize}
+
+\section{Setup des virtuellen Ubuntuservers}
+Da die Berechnungen mit dem grossen Datenset viel Rechenkapazität benötigen, entschied ich mich dazu, eine virtuelle Maschiene beim EnterpriseLab der Hochschule Luzern (HSLU) anzufordern. Die angefragte Maschiene läuft mit Ubuntu 18.04, hat 350 GB Diskspace, verfügt über 12 CPU Cores und hat 100 GB RAM. 
+
+\subsection{Install Virtualenv with Virtualenvwrapper on Ubuntu}
+Um keine Probleme mit Versionskompatibilität vorinstallierter Libraries und Pythonversionen zu erhalten, entschied ich mich ein Virtualenv auf dem Ubuntuserver des Enterpriselabs zu erstellen.
+
+Zuerst wird ein versteckter Ordner, welche alle virtuellen Environments (falls mehrere erstellt werden) enthalten wird, erstellt. Dieser versteckte Ordner wird mittels \lstinline[language=Bash]{mkdir .virtualenvs} erstellt.
+Danach wird Virtualenv mit pip installiert \lstinline[language=bash]{pip3 install virtualenv}. Mit dem Bashbefehl \lstinline[language=bash]{which virtualenv} kann überprüft werden, welche Version des Virtualenv installiert wurde. Damit bei der Aktivierung eines Environments nicht jedesmal den \lstinline[language=bash]{usr/python/bin} Pfad angegeben werden muss, installieren wir Virtualenvwrapper mittels \lstinline[language=bash]{pip3 install virtualenvwrapper}.
+
+Danach wird die .bashrc Datei modifiziert indem eine Zeile hinzugefügt wird, welche jedes neue virtuelle Environment so anpasst, automatisch Python 3 zu verwenden. Ebenfalls werden neue virtuelle Environments automatisch im zuvor erstellten Ordner (.virtualenvs) erstellt. Im .bashrc wird ebenfalls aufgezeigt wo die Packete Virtualenv und Virtualenvwrapper installiert sind. Um die .bashrc Datei zu bearbeiten wird sie mit dem Befehl \lstinline[language=bash]{vim .bashrc} geöffnet. Am Ende der Datei fügt man folgende Zeilen ein: 
+
+
+\begin{lstlisting}[language=bash, caption= Änderungen an .bashrc Datei, label=lst:.bashrc]
+export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3
+export WORKON_HOME=$HOME/.virtualenvs
+export VIRTUALENVWRAPPER_VIRTUALENV=/home/localadmin/.local/bin/virtualenv
+source ~/.local/bin/virtualenvwrapper.sh
+
+\end{lstlisting}
+
+\subsection{Aufsetzen eines virtuellen Environments}
+Um ein neues virtuelles Environment zu erstellen und direkt zu aktivieren kann folgender Befehl im Terminal verwendet werden: \lstinline[language=bash]{mkvirtualenv my_env}. Soll eine spezifische Python Version verwendet werden, sollte der Pythonpfad bei der Erstellung des Environment so mitgegeben werden: \lstinline[language=bash]{mkvirtualenv -p /usr/bin/python3.7 my_env}.
+
+\subsection{Installation des MySQL Servers}
+Um einen MySQL Server aufzusetzen wird mittels \lstinline[language=bash]{sudo apt-get install mysql-server} die MySQL Software heruntergeladen. Die sichere Installation folgt mit: \lstinline[language=bash]{sudo mysql-secure-installation utility}. Danach inizialisieren wir den MySQL Service mittels \lstinline[language=bash]{sudo systemctl enable mysql}. Damit dieser auch bei einem Restart der virtuellen Maschine (VM) wieder gestartet wird, geben wir im Terminal den Befehl \lstinline[language=bash]{sudo systemctl enable mysql} ab.
+Damit wir später via Python auf den MySQL Server Zugriff haben, muss die Authentifizierung des Root Benutzers von Autoplugin auf Passwort geändert werden. Dies kann mit folgendem Befehl gemacht werden: \lstinline[language=bash]{sudo mysql} \lstinline[language=SQL]{ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password';}
+
+\subsection{Aufsetzen der Entwicklungsumgebung}
+Damit nicht direkt auf dem Server im Terminal Python programmiert werden muss, wird die Entwicklungsumgebung PyCharm 2020.1.1 %TODO Cite Pycharm
+verwendet. PyCharm erlaubt es, als Pythoninterpreter einen SSH Interpreter zu verwenden. Damit können also direkt die Ressourcen und das zuvor auf dem Server installierte virtuelle Environment benutzt werden.
+\begin{figure}[htb]
+	\centering
+	\includegraphics[keepaspectratio,width=\linewidth]{img/SSH Remote Interpreter Configuration.png}
+	\caption{Konfiguration SSH Remote Interpreter}
+	\label{fig:SSH Remote Interpreter}
+\end{figure}
+
+Die Abbildung \ref{fig:SSH Remote Interpreter} zeigt wie in PyCharm ein SSH Remote Interpreter konfiguriert werden muss. Nach dieser Konfigurierung kann auf dem eigenen Laptop in der gewohnten Python Entwicklungsumgebung programmiert werden und der Code direkt auf dem Server laufen gelassen werden.
+
+\section{Umsetzung der Software Architektur}
+Im Verlauf dieses Abschnitts, wird die Umsetzung der einzelnen Komponenten des in Kapitel \ref{sec: Ideen, Konzepte} gezeigten \nameref{fig:Komponentendiagramm}s aus Abbildung \ref{fig:Komponentendiagramm} beschrieben. Ebenfalls wird die Umsetzung der definierten Ziele inklusive Schwierigkeiten und Einschränkungen aufgezeigt.
+
+\subsection{Komponente Similarities}
+Die Komponente Similarities enthält alle Similaritäten, welche zur Berechnung der User- und Item-Ähnlichkeit benötigt werden. Nämlich die Cosinus Similarität und die Mahalanobis Distanz.
+
+\begin{lstlisting}[language=Python, caption= Komponente Similarities, label=lst:Similarities]
+import pandas as pd
+from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
+from scipy.spatial import distance
+import tensorflow_probability as tfp
+
+class Similarities(object):
+    
+    def get_cosine_similarity(self,df):
+        b = cosine_similarity(df)
+        np.fill_diagonal(b, 0)
+        cos_similarity = pd.DataFrame(b,index=df.index)
+        cos_similarity.columns = df.index
+
+        return cos_similarity
+    
+
+    def get_mahalanobis_distance(self,df):
+        vec = df.values
+
+        i=0
+        mahalanobis_dist = []
+        Cov = tfp.stats.covariance(vec).numpy()
+        for i in range(len(vec)-1):
+            j=0
+            row_vec = []
+            for j in range(len(vec)-1):
+
+                dist= distance.mahalanobis(vec[i],vec[j],Cov)
+                dist = dist.tolist()
+                row_vec.append(dist)
+                j+=1
+            row_vec = row_vec.tolist()
+            mahalanobis_dist.append(row_vec)
+            i+=1
+        np.fill_diagonal(mahalanobis_dist, 0)
+        mahal_distance = pd.DataFrame(mahalanobis_dist, index=vec.index)
+        mahal_distance.columns = vec.index
+        return mahal_distance
+
+\end{lstlisting}
+
+Die beiden Get Methoden um die Cosinus Similarität beziehungsweise die Mahalonobis Distanz des Dataframe zu erhalten sind unterschiedlich aufgebaut. Das liegt daran, dass die sklearn Funktion cosine\_similarity (Listing \ref{fig:Komponentendiagramm}, Zeile 10) ein Pandas Dataframe als Input akzeptiert und die Cosinus Similarität zwischen allen Zeilen des Dataframes berechnet. In Zeile 11 füllen wir die Diagonale der Cosinus Similaritätsmatrix mit 0 ab, damit verhindern wir, dass die Elemente sich selbst am nächsten sind und so am Schluss in der Liste der Top $N$ Nachbaren auftaucht.
+
+Die scipy Funktion distance.mahalanobis() akzeptiert als Inputwerte zwei Vektoren und die Covarianzmatrix des Datensets. 
+
+Deshalb wird auf Zeile 23 die Covarianzmatrix berechnet. Dies wird mittels der Tenserflow implementation gemacht, da die Tensorflow Library parallel ausgeführt wird. Somit wird auch die Produktrandbedingung Nummer 12 aus Kapitel \ref{sec:Produktrandbedingungen} erfüllt. Damit wir nun die Mahalonobisdistanz zwischen allen Reihen berechnen können, iterieren wir durch das Dataset. Wie schon bei der Cosinus Similarität füllen wir auch bei der Mahalonobis Distanz die Diagonale mit 0.
+
+\subsection{Komponente PCA}
+Zur Berechnung der Principal Component Analyse hätte eine bestehende Funktion einer Library verwendet werden können.
+
+Wie in Kapitel \ref{sec: Ideen, Konzepte} beschrieben, wurden Prototypen mit der SciKit-Learn und auch der Tensorflow Library erstellt. Da diese nicht wie gewünscht performten wurde nun eine eigene PCA Funktion geschrieben.
+
+\begin{lstlisting}[language=Python, caption= Komponente PCA, label=lst:PCA Komponente]
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import RobustScaler
+import numpy as np
+import matplotlib.pyplot as plt
+import tensorflow as tf
+import tensorflow_probability as tfp
+import tensorflow_transform as tft
+
+class PrincipalComponantAnalysis(object):
+    
+    def normalize(self,data):
+        # creates a copy of data
+        X = tf.identity(data)
+        # calculates the mean
+        X -= tf.reduce_mean(data, axis=0)
+        return X
+
+
+    def explained_variance(self, matrix):
+        diag = np.diagonal(matrix)
+        summe = sum(diag)
+        cov = tfp.stats.covariance(matrix).numpy()
+        diag_cov = np.diagonal(cov)
+        print(diag_cov)
+        i=0
+        explained_variance= []
+        for i in range (len(diag_cov)-1):
+            varianz= diag_cov[i]/summe
+            explained_variance.append(varianz)
+            i= i+1
+        return explained_variance
+
+        # Note that the diagonal sum is still 3.448, which says that all 3 components account for all the multivariate variability.
+    # The 1st principal component accounts for or "explains" 1.651 / 3.448 = 47.9 % of the overall variability;
+    # the 2nd one explains 1.220 / 3.448 = 35.4 % of it;
+    # the 3rd one explains .577 / 3.448 = 16.7 % of it.
+
+
+
+    def tf_pca(self,df):
+        X = tf.constant(df.values)
+        X_normalized = self.normalize(X)
+        Covarianz_Matrix = tfp.stats.covariance(X_normalized)
+        print(sum(np.diagonal(Covarianz_Matrix.numpy())))
+        e, v = tf.linalg.eigh(tf.tensordot(tf.transpose(Covarianz_Matrix), Covarianz_Matrix, axes=1))
+
+        #sort eigenvectors by eigenvalues (tf sorts eigenvalues in non-decreasing order)
+        e = e.numpy()
+        v = v.numpy()
+        idx = e.argsort()[::-1]
+        e = e[idx]
+        v = v[:, idx]
+        print("Eigen Vectors: \n{} \nEigen Values: \n{}".format(v, e))
+        expl_varianz = self.explained_variance(v)
+        # data = pd.DataFrame(
+        #     {'# of Features': range(1, len(expl_varianz) + 1), '% Variance explained': np.cumsum(expl_varianz * 100)})
+        # # plt.plot(data)
+        # data.plot(x=0, y=1, grid=True, figsize=(10, 8))
+        # # xticks=range(100, len(v_ratio) + 1)
+        # plt.show()
+        df_var = pd.DataFrame(expl_varianz)
+        df_var.to_csv('../../data/explained_varianz.csv')
+        X_new = tf.tensordot(tf.transpose(v), tf.transpose(X), axes=1).numpy()
+        X_pca = pd.DataFrame(X_new)
+        X_pca.to_csv('../../data/ratings_pca.csv')
+
+
+
+\end{lstlisting}
+
+
+
+
+\subsection{Komponente DataPreprocessing}
+In der Komponente DataPreprocessing werden jeweils aus den Daten in der in Form von\break $(User, Item, Rating)$ Tripplets, die Ratingmatrizen erstellt. Die Funktionen \lstinline{create_user_rating_vec} und \lstinline{create_item_rating_vec} erstellen jeweils beide die Ratingmatrizen $R$. \break Die Funktion \lstinline{create_user_rating_vec} erstellt die Ratingmatrix mit den $Usern$ als Zeilen und $Items$ als Spalten und \lstinline{create_item_rating_vec} erstellt die Ratingmatrix mit $Items$ als Zeilen und $User$ als Spalten.
+
+Die Funktionen \lstinline{create_user_rating_vec} \lstinline{create_item_rating_vec} prüfen vor der Erstellung der Rating Matrix $R$ in (Listing \ref{lst:Ratingmatrix User}, Listing \ref{lst:Ratingmatrix Item}, Zeile 9 ) dass jeder User, jedes Item mindestens 20 Bewertungen erstellt oder erhalten hat. \cite{DatasetReadme} prüft schon bei der Erstellung des Datensets, dass jeder User mindestens 20 Bewertungen abgegeben hat, deshalb wäre es in der Funktion\lstinline{create_user_rating_vec} nicht zwingend nötig. Jedoch wird so, nochmals kontrolliert, ob wirklich jeder $User$ 20 Bewertungen erstellt hat, und der Mindestwert der Anzahl Bewertungen, kann einfach für die $User$, wie auch $Items$ angepasst werden. Der Mindestwert von 20 Bewertungen wurde von \cite{DatasetReadme} übernommen.
+
+
+\begin{lstlisting}[language=Python, caption= Funktion zur Erstellung der User Ratingmatrix, label=lst:Ratingmatrix User]
+
+    def create_user_rating_vec(self,df:pd.DataFrame) -> pd.DataFrame:
+       
+        df.movieId = df.movieId.astype('int32')
+        df.userId = df.userId.astype('int32')
+        df.rating = df.rating.astype('float32')
+       
+        # limit df to user ratings that have rated minimum 20 movies
+        df = df.groupby('userId').filter(lambda x: len(x) >= 20)
+        ratings = pd.pivot_table(df,values='rating',index='userId',columns='movieId')
+       
+        #Replacing NaN by zero
+        final = final.fillna(0)
+
+        return final
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption= Funktion zur Erstellung der Item Ratingmatrix, label=lst:Ratingmatrix Item]
+
+    def create_item_rating_vec(self,df:pd.DataFrame) -> pd.DataFrame:
+        
+        df.movieId = df.movieId.astype('int32')
+        df.userId = df.userId.astype('int32')
+        df.rating = df.rating.astype('float32')
+        
+        # limit df to items having minimum 20 ratings 
+        df = df.groupby('movieId').filter(lambda x: len(x) >= 20)
+        
+        ratings = pd.pivot_table(df,values='rating',index='movieId',columns='userId') #ratings #fill_value=0
+        
+        #Replacing NaN by zero
+        ratings = ratings.fillna(0)
+       
+        return ratings
+\end{lstlisting}
+
+Bei der Implementation der Funktionen der DataPreprocessing Komponente bei der Erstellung der Prototypen gab es keine Schwierigkeiten. Diese wurden erst zu einem späteren Zeitpunkt entdeckt, als die Software mit dem 25M Datenset gestartet wurde. Aus den 25MB entwickelte sich pro Ratingmatrix ein Dataset von über 70GB. Es wurde unmöglich Berechnungen wie die Cosinus Similarität auf 70GB die dann im RAM sind zu machen. Deshalb werden die Datentypen bei Erstellung der Ratingmatrizen von float64 auf float32 geändert. Damit verkleinern sich die Ratingmatrizen von 70GB auf 35GB mit 25 Millionen Ratings.
+
+\subsection{Komponente GetNNeighbours}
+Die Komponente GetNNeighbours repräsentiert die main Klasse unserer Software. 
+
+In der Funktion \lstinline{get_n_neighbours} werden die User, wie auch Item Ratingmatrizen erstellt. Dazu werden die Funktionen aus der Klasse DataPreprocessing importiert und verwendet. %TODO ZEILE IN LISTING
+
+Nachdem die Ratingmatrizen erstellt wurden und die PCA mittels der importierten Komponente PrincipalComponentAnalysis berechnet wurde, werden sowohl die Cosinussimilarität, wie auch die Mahalanobisdistanz berechnet.Auch die Funktionen zur Berechnung werden aus der Similarities Komponente importiert.
+
+Nach dem die Similarities berechnet wurden, werden die Similaritymatrizen der Funktion \lstinline{_find_n_neughbours} übergeben. Diese nimmt nicht nur die Similaritätzmatrix, sondern auch die Anzahl nearest Neighbours $N$, welche gesucht ist als Parameter an.
+Sobald die $N$ Nearest Neighbours gefunden sind, werden diese mittels der Funktion \lstinline{df_to_sql} in die SQL Datenbank geschrieben.
+
+\begin{lstlisting}[language=Python, caption= Komponente GetNNeighbours, label=lst:GetNNeighbours]
+
+from src.DataPreprocessing import DataPreprocessing
+from src.Similarities import Similarities
+import numpy as np
+import pandas as pd
+import MySQLdb
+from sqlalchemy import create_engine, types
+
+class GetNNeighbours(object):
+    def __init__(self):
+        self.df_ratings = pd.read_csv('/data/ml-25m/ratings.csv', sep=",", usecols=[0, 1, 2], memory_map=True,
+                                      low_memory=True)
+        self.datapreprocessing = DataPreprocessing()
+        self.similarities = Similarities()
+
+        # self.df_ratings = pd.read_csv('C:/Users/annam/OneDrive/HSLU/20FS/BA/Data/ml-latest-small/ratings.csv', sep=",", memory_map=True, low_memory=True)
+
+
+    def _find_n_neighbours(self, df: pd.DataFrame, n) -> pd.DataFrame:
+        order = np.argsort(df.values, axis=1)[:, :n]
+        df = df.apply(lambda x: pd.Series(x.sort_values(ascending=False)
+                                          .iloc[:n].index,
+                                          index=['top{}'.format(i) for i in range(1, n + 1)]), axis=1)
+        return df
+
+
+    def get_n_neighbours(self, n: int) -> pd.DataFrame:
+        data = self.df_ratings
+
+        user= self.datapreprocessing.create_user_rating_vec(data)
+        items = self.datapreprocessing.create_item_rating_vec(data)
+        similar_users = self.similarities.get_cosine_similarity(user)
+        similar_items = self.similarities.get_cosine_similarity(items)
+        nearest_neighbours = self._find_n_neighbours(similar_items, n)
+        return nearest_neighbours
+
+
+    def df_to_sql(self,df: pd.DataFrame):
+        engine = create_engine('mysql://root:banana@localhost/NACHBARN')  # enter your password and database names here
+        df.to_sql('itemnachbarn_feature_space', con=engine, index=True, index_label='movieId', if_exists='replace')
+
+
+
+
+if __name__ == '__main__':
+    Result = GetNNeighbours()
+    usernachbaren = Result.get_n_neighbours(100)
+    Result.df_to_sql(usernachbaren)
+
+\end{lstlisting}
+\subsection{Komponente ListComparing}
+Nach dem die $N$ Nearest Neighbours ind der GetNNeighbours Komponente gefunden und in die SQL Datenbank geschrieben werden, werden die Listen aus dem Featurespace mit den PCA Listen verglichen.
+Dies wird sowohl mit dem Jaccuard Index als auch mit dem Tanimoto Koeffizient getan.
+
+
+\begin{lstlisting}[language=Python, caption= Komponente ListComparing, label=lst:ListComparing]
+
+import pandas as pd
+import MySQLdb
+from sqlalchemy import create_engine, types
+
+class ListComparing(object):
+
+    def read_from_sql(self) -> pd.DataFrame:
+        engine = create_engine('mysql://root:banana@localhost/NACHBARN')
+        user = pd.read_sql_table('usernachbarn', engine, index_col='userId')
+        #userpca =  pd.read_sql_table('usernachbarnpca', engine, index_col='userId')
+        items =  pd.read_sql_table('itemnachbarn', engine, index_col='movieId')
+        #itemspca =  pd.read_sql_table('itemnachbarnpca', engine, index_col='movieId')
+        print(user.head())
+        print(user.shape)
+        print(items.head())
+        print(items.shape)
+        return user,items
+
+    def compute_jaccard_similarity_score(x, y):
+        """
+        Jaccard Similarity J (A,B) = | Intersection (A,B) | /
+                                        | Union (A,B) |
+        """
+        intersection_cardinality = len(set(x).intersection(set(y)))
+        union_cardinality = len(set(x).union(set(y)))
+        return intersection_cardinality / float(union_cardinality)
+
+    def tanimoto_coefficient(self, p_vec, q_vec):
+        """
+        This method implements the cosine tanimoto coefficient metric
+        :param p_vec: vector one
+        :param q_vec: vector two
+        :return: the tanimoto coefficient between vector one and two
+        """
+        pq = p_vec * q_vec
+        p_square = p_vec**2
+        q_square = q_vec**2
+        return pq / (p_square + q_square - pq)
+
+
+if __name__ == '__main__':
+    ListComparing().read_from_sql()
+
+
+
+
+
+\end{lstlisting}
+
+
 

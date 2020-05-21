@@ -65,9 +65,21 @@
   footskip=2cm
 }
 % Use Helvetica as font
-\usepackage[scaled]{helvet}
-\renewcommand\familydefault{\sfdefault}
+%\usepackage[scaled]{helvet}
+%\renewcommand\familydefault{\sfdefault}
+%\usepackage[T1]{fontenc}
+
+\usepackage[sfdefault,extralight]{FiraSans} %% option 'sfdefault' activates Fira Sans as the default text font
 \usepackage[T1]{fontenc}
+\renewcommand*\oldstylenums[1]{{\firaoldstyle #1}}
+
+%\usepackage{fontspec}
+
+%\setmainfont[
+ %BoldFont={FrutigerLTStd-Bold.otf}, 
+ %ItalicFont={FrutigerLTStd-Italic.otf}
+ %]{FrutigerLTStd-Roman.otf}
+
 
 % Better tables
 \usepackage{tabularx}
