@@ -53,8 +53,10 @@ Dies wird mittels Abbildung \ref{fig:PCA} aufgezeigt.
 
 \subsubsection{Berechnung der Principal Component Analyse}
 \label{sec: Berechnung PCA}
+Es git verschiedene Möglichkeiten um die PCA zu berechnen. Entweder wird die PCA mittels Singulärwertzerlegung  oder mittels Berechnung der Eigenwerte und Eigenvektoren der Daten berechnet. In diesem Abschnitt wird die Berechnung der PCA mit Eigenwerten und -vektoren aufgezeigt. (\cite{principa25:online})
 
-Um die PCA zu berechnen werden als im \textbf{ersten} Schritt die vorhandenen Daten in eine $m\times n$ Matrix transformiert (in unserem Fall in die Ratingmatrix $R$). Damit die Principal Component Analysis korrekt funktioniert, subtrahiert man in einem \textbf{zweiten} Schritt in jeder Dimension(Spalten der $m \times n$ Matrix) den Mittelwert $\bar{X}$ der Dimension.  Dadurch erhält man ein Datenset mit dem Mittelwert $= 0$.
+
+Um die PCA zu berechnen werden im \textbf{ersten} Schritt die vorhandenen Daten in eine $m\times n$ Matrix transformiert (in unserem Fall in die Ratingmatrix $R$). Damit die Principal Component Analysis korrekt funktioniert, subtrahiert man in einem \textbf{zweiten} Schritt in jeder Dimension(Spalten der $m \times n$ Matrix) den Mittelwert $\bar{X}$ der Dimension.  Dadurch erhält man ein Datenset mit dem Mittelwert $= 0$.
 Im \textbf{dritten} Schritt berechnet man die $n\times n$ Kovarianzmatrix $C$. Mit der Kovarianzmatrix berechnet man die Kovarianz zwischen allen Dimensionen. Dies wird mit dem Beispiel \eqref{Kovarianzmatrix} mit den drei Dimensionen $X,Y,Z$ aufgezeigt.
 
 \indexequation{C=\left(\begin{array}{ccc}
